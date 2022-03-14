@@ -42,7 +42,9 @@ module.exports = {
       forking: {
         url: 'https://polygon-mumbai.g.alchemy.com/v2/A0fTvH0AHgcGiM3CIwiy1PPYVOQevIiA',
         blockNumber: 25371870,
+        accounts: [process.env.PRIVATE_KEY],
       }
+
     },
     mumbai: {
       url: 'https://polygon-mumbai.g.alchemy.com/v2/A0fTvH0AHgcGiM3CIwiy1PPYVOQevIiA',

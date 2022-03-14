@@ -16,7 +16,7 @@ import "./aave/ILendingPool.sol";
 
 contract Custodian is Ownable, ICustodian {
     using SafeERC20 for IERC20;
-    // no-defi
+
     ILPToken public immutable lpToken;
     IRepaymentPool public repaymentPool;
 
@@ -26,6 +26,9 @@ contract Custodian is Ownable, ICustodian {
     ILendingPool public immutable aavePool;
 
     uint256 public investedBalance; // balance invested in real-life contracts
+    uint256 internal defiBal;
+    uint256 internal reserveBal;
+
     uint256 constant tolerance = 50; // pool balancing tolerance, in 1/1000th
     uint256 constant baseReserveShare = 200; // portion of liquidity to keep as reserve, in 1/1000th
 
@@ -105,9 +108,6 @@ contract Custodian is Ownable, ICustodian {
         }
 
         uint256 reserveShare = (reserveUsdcBalance * 1000) / availableBalance;
-        console.log("Reserve share:", reserveShare);
-        console.log("Base share:", baseReserveShare);
-        console.log("Tolerance:", tolerance);
 
         if (reserveShare > baseReserveShare + tolerance) {
             uint256 differenceBalance = ((reserveShare - baseReserveShare) *
@@ -118,12 +118,6 @@ contract Custodian is Ownable, ICustodian {
                 availableBalance) / 1000;
             withdrawAave(differenceBalance);
         }
-        //
-        console.log("First case:", reserveShare > baseReserveShare + tolerance);
-        console.log(
-            "Second case:",
-            reserveShare < baseReserveShare - tolerance
-        );
     }
 
     /// @notice Registers a deal repayment for the principal amount
@@ -156,8 +150,14 @@ contract Custodian is Ownable, ICustodian {
             "Withdrawal amount exceeds aUSDC balance"
         );
 
+        defiBal -= aUsdcAmount;
+        reserveBal += aUsdcAmount;
+        // This implementation purposely does not interact with Aave for
+        // simplicity reasons
+        /*
         aUsdc.safeIncreaseAllowance(address(aavePool), aUsdcAmount);
         aavePool.withdraw(address(usdc), aUsdcAmount, address(this));
+        */
     }
 
     /// @notice Helper function to deposit a given USDC amount into Aave
@@ -167,8 +167,14 @@ contract Custodian is Ownable, ICustodian {
             "Deposit amount exceeds reserve balance"
         );
 
+        defiBal += usdcAmount;
+        reserveBal -= usdcAmount;
+        // This implementation purposely does not interact with Aave for
+        // simplicity reasons
+        /*
         usdc.safeIncreaseAllowance(address(aavePool), usdcAmount);
         aavePool.deposit(address(usdc), usdcAmount, address(this), 0);
+        */
     }
 
     /// @notice Helper function used to calculate the amount of LP to mint

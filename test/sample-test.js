@@ -94,8 +94,16 @@ describe("Custodian single LP", async function () {
   let tx;
 
   before(async function () {
-    [deployer, alice, addr2, addr3, profits] = await ethers.getSigners();
-    await getUSD(cryptocom, [deployer.address, alice.address, addr2.address, addr3.address, profits.address], 10000000000);
+    await hre.network.provider.request({
+      method: "hardhat_impersonateAccount",
+      params: ["0xd5817d8eF578399fC9d6C013D63A81f0887F61CE"],
+    });
+
+    deployer = await ethers.getSigner("0xd5817d8eF578399fC9d6C013D63A81f0887F61CE");
+    [alice, addr2, addr3, profits] = await ethers.getSigners();
+
+    console.log(deployer.address)
+    // await getUSD(cryptocom, [deployer.address, alice.address, addr2.address, addr3.address, profits.address], 10000000000);
 
     const Token = await ethers.getContractFactory("LPToken");
     token = await Token.deploy();
