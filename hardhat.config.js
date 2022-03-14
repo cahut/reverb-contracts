@@ -1,11 +1,7 @@
 require("@nomiclabs/hardhat-waffle");
+require("@nomiclabs/hardhat-etherscan");
 require('@openzeppelin/hardhat-upgrades');
 require('dotenv').config()
-
-const chai = require('chai');
-const chaiAlmost = require('chai-almost');
-
-chai.use(chaiAlmost());
 
 // This is a sample Hardhat task. To learn how to create your own go to
 // https://hardhat.org/guides/create-task.html
@@ -36,14 +32,17 @@ module.exports = {
   },
   networks: {
     hardhat: {
+      /*
       forking: {
         url: "https://eth-mainnet.alchemyapi.io/v2/2sB00tJWxrkNvEpYpnRlit4ElRz88l9W",
         blockNumber: 14113438
       }
-      /*
+      */
+
       forking: {
         url: 'https://polygon-mumbai.g.alchemy.com/v2/A0fTvH0AHgcGiM3CIwiy1PPYVOQevIiA',
-      }*/
+        blockNumber: 25371870,
+      }
     },
     mumbai: {
       url: 'https://polygon-mumbai.g.alchemy.com/v2/A0fTvH0AHgcGiM3CIwiy1PPYVOQevIiA',
@@ -55,6 +54,10 @@ module.exports = {
       accounts: [process.env.PRIVATE_KEY],
       gas: 10000000
     }
-
+  },
+  etherscan: {
+    apiKey: {
+      polygonMumbai: 'UCF736A9PVSHHS75N5VGP4ZFZK7SN2I9VM',
+    }
   }
 };

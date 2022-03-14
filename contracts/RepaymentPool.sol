@@ -28,7 +28,7 @@ contract RepaymentPool is IRepaymentPool, Ownable {
     IERC20 public immutable usdc;
     ICustodian public immutable custodian;
 
-    mapping(uint256 => Deal) dealList;
+    mapping(uint256 => Deal) public dealList;
     Counters.Counter dealCount;
 
     constructor(IERC20 _usdc, ICustodian _custodian) {

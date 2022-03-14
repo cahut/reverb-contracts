@@ -15,7 +15,7 @@ const custodian_abi = ['function deposit(uint256 amount, address onBehalfOf) ext
   'function calculateUsdcToLp(uint256 usdcAmount) external view returns (uint256)',
   'function aavePool() external view returns(address)',
   'function repaymentPool() external view returns(address)',
-  'function withdraw(uint256 amount) external',
+  'function withdrawToSafe(uint256 amount) external',
   'function owner() external returns(address)'];
 
 const repayment_abi = ['function dealList(uint256) external view returns(uint256,uint256,uint256,uint256,uint256,uint16,uint16,string)',
@@ -24,6 +24,8 @@ const repayment_abi = ['function dealList(uint256) external view returns(uint256
   'function repay(uint256 dealId,uint256 amount,uint256 interest) external']
 
 const faucet_abi = ['function pullTo(address dest, uint amt) external']
+
+const owner_abi = ['function transferOwnership(address) external']
 
 
 async function deploy() {
@@ -60,16 +62,15 @@ async function mintUSDC(address, amount, signer) {
   await tx.wait();
 }
 
-async function deposit(custodian, amount,) {
-
-}
 
 async function main() {
   const signer = await hre.ethers.getSigner();
+  console.log(signer.address)
+
   let tx;
   const addresses = {
     token: '0xD5Cc83402802577352E7D2aA0eaDE9925f221cE6',
-    custodian: '0x8341FC22C1935B8443BB4b5AC26a1dC99e608940',
+    custodian: '0x60f75AD77C72299D4C65F9941F3D7AaD5B786eDA',
     repayment: '0x2c607cF62a1482550311F03Dc3C13631AFEF10e2'
   };
 
@@ -78,43 +79,7 @@ async function main() {
   const repayment = new ethers.Contract(addresses.repayment, repayment_abi, signer);
   const usdc = new ethers.Contract(usdc_address, token_abi, signer);
 
-  //await mintUSDC(signer.address, 302000000000, signer);
-  /*
-  const usdcFaucet = new ethers.Contract(usdc_faucet, faucet_abi, signer);
-  for (let i = 0; i < 300; i++) {
-      tx = await usdcFaucet.pullTo(signer.address, 10000000000);
-      await tx.wait();
-  }
-
-  console.log(tx)
-  console.log(await usdc.balanceOf(signer.address));
-*/
-  /*
-      tx = await usdc.approve(addresses.custodian, 13000000000);
-      await tx.wait();
-  
-      tx = await custodian.deposit(13000000000, signer.address, { gasLimit: 10000000 });
-      await tx.wait();
-  */
-
-
-  /*
-  tx = await repayment.createDeal(120000000000, 1644145795, 1654145795, 12, 70, 'Yoga Room');
-  await tx.wait();
-  tx = await repayment.createDeal(40000000000, 1644145795, 1654145795, 12, 82, 'Flex my Way');
-  await tx.wait();
-  tx = await repayment.createDeal(45000000000, 1644145795, 1654145795, 12, 65, 'Stretch it Baby');
-  await tx.wait();
-  tx = await repayment.createDeal(30000000000, 1644145795, 1654145795, 12, 73, 'Flowers and Pancakes');
-  await tx.wait();
-  */
-  tx = await repayment.createDeal(20000000000, 1644145795, 1654145795, 12, 80, 'Beachfront Yoga');
-  await tx.wait();
-
-  /*
-  tx = await custodian.withdraw(13000000000, { gasLimit: 10000000 })
-  await tx.wait();
-*/
+  tx = await custodian.withdrawToSafe(100043514651, { gasLimit: 1000000 })
 }
 
 // We recommend this pattern to be able to use async/await everywhere

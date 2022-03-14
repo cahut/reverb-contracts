@@ -317,6 +317,41 @@ describe("Custodian multiple LP", async function () {
   });
 });
 
+describe("Withdrawing as owner", async function () {
+  let deployer, alice, addr2, addr3, profits;
+  let token, custodian, usdc;
+  let tx;
+
+  before(async function () {
+    [deployer, alice, addr2, addr3, profits] = await ethers.getSigners();
+    await getUSD(cryptocom, [deployer.address, alice.address, addr2.address, addr3.address, profits.address], 10000000000);
+
+    const Token = await ethers.getContractFactory("LPToken");
+    token = await Token.deploy();
+    await token.deployed();
+
+    const Custodian = await ethers.getContractFactory("Custodian");
+    custodian = await Custodian.deploy(token.address, usdc_address, ausdc_address, ilendingpool_addressesprovider);
+    await custodian.deployed();
+
+    tx = await token.transferOwnership(custodian.address);
+    await tx.wait();
+
+    usdc = new ethers.Contract(usdc_address, token_abi, deployer);
+
+    await usdc.connect(alice).approve(custodian.address, 1000000000);
+    tx = await custodian.connect(alice).deposit(1000000000, alice.address);
+    await tx.wait();
+  });
+
+  it("Should allow you to withdraw as owner", async function () {
+    expect(await custodian.getTotalBalance()).to.be.gte(1000000000);
+
+    tx = await custodian.withdrawToSafe(800000000)
+    await tx.wait()
+  });
+});
+
 
 describe("Repayment pool ", async function () {
   let deployer, alice, bob, cathy, profits;

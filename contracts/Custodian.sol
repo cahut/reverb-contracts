@@ -16,7 +16,7 @@ import "./aave/ILendingPool.sol";
 
 contract Custodian is Ownable, ICustodian {
     using SafeERC20 for IERC20;
-
+    // no-defi
     ILPToken public immutable lpToken;
     IRepaymentPool public repaymentPool;
 
@@ -82,6 +82,7 @@ contract Custodian is Ownable, ICustodian {
                 usdcAmount <= getAvailableBalance(),
                 "Reserve funds too low"
             );
+
             withdrawAave(usdcAmount - reserveBalance());
         }
 
@@ -99,7 +100,14 @@ contract Custodian is Ownable, ICustodian {
         uint256 defiUsdcBalance = defiBalance();
         uint256 availableBalance = reserveUsdcBalance + defiUsdcBalance;
 
+        if (availableBalance == 0) {
+            return;
+        }
+
         uint256 reserveShare = (reserveUsdcBalance * 1000) / availableBalance;
+        console.log("Reserve share:", reserveShare);
+        console.log("Base share:", baseReserveShare);
+        console.log("Tolerance:", tolerance);
 
         if (reserveShare > baseReserveShare + tolerance) {
             uint256 differenceBalance = ((reserveShare - baseReserveShare) *
@@ -110,6 +118,12 @@ contract Custodian is Ownable, ICustodian {
                 availableBalance) / 1000;
             withdrawAave(differenceBalance);
         }
+        //
+        console.log("First case:", reserveShare > baseReserveShare + tolerance);
+        console.log(
+            "Second case:",
+            reserveShare < baseReserveShare - tolerance
+        );
     }
 
     /// @notice Registers a deal repayment for the principal amount
